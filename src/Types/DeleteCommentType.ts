@@ -1,4 +1,4 @@
 export interface DeleteCommentType {
-    onButtonCancel: () => void
-    onButtonDelete: () => void
+    onCancelModal: () => void
+    onDeleteModal: () => void
 }

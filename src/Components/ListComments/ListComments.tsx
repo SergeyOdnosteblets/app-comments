@@ -2,52 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { DataType } from '../../Types/DataType';
 import { ListType } from '../../Types/ListType';
 import { PostType } from '../../Types/PostType';
-import { DeleteComment } from '../DeleteComment/DeleteComment';
+import { DeleteModal } from '../DeleteModal/DeleteModal';
 import { Form } from '../Form/Form';
 import { SingleComment } from '../SingleComment/SingleComment';
 
-import style from './List.module.scss';
+import style from './ListComments.module.scss';
 
-export const List: React.FC<ListType> = ({ data, setData, user }) => {
+export const ListComments: React.FC<ListType> = ({ data, setData, user }) => {
   const [modalDelete, setModalDelete] = useState<boolean>(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [editStatus, setEditStatus] = useState<number | null>(null);
   const [editMessage, setEditMessage] = useState<string>('');
-  const [replyId, setReplyId] = useState<number | null>(null);
+  const [replyCommentId, setReplyCommentId] = useState<DataType | null>(null);
 
   const getModalDelete = (id: number) => {
     !modalDelete && setDeleteId(id);
     setModalDelete(!modalDelete);
   };
 
-  const onDelete = (arr: any, id: any) => {
-    const x = arr.filter((item: any) => {
+  const onDeleteModal = () => {
+    setData(getDeleteComment(data, deleteId));
+    setDeleteId(null);
+    setModalDelete(!modalDelete);
+  };
+
+  const onCancelModal = () => {
+    setDeleteId(null);
+    setModalDelete(!modalDelete);
+  };
+
+  const getDeleteComment = (arr: any, id: number | null) => {
+    const deletedData = arr.filter((item: DataType) => {
       if (item.id !== id && item.replies && item.replies.length) {
-        return onDelete(item.replies, id);
+        return getDeleteComment(item.replies, id);
       }
       return item.id !== id;
     });
-    x.map((item: any) => {
+    deletedData.map((item: DataType) => {
       if (item.replies) {
-        item.replies = onDelete(item.replies, id);
+        item.replies = getDeleteComment(item.replies, id);
         return item;
       }
     });
-    return x;
+    return deletedData;
   };
 
-  const onButtonDelete = () => {
-    setData(onDelete(data, deleteId));
-    setDeleteId(null);
-    setModalDelete(!modalDelete);
-  };
-
-  const onButtonCancel = () => {
-    setDeleteId(null);
-    setModalDelete(!modalDelete);
-  };
-
-  const onEdit = (id: number) => {
+  const getEditComment = (id: number) => {
     setEditStatus(id);
 
     let comments = [...data];
@@ -67,14 +67,28 @@ export const List: React.FC<ListType> = ({ data, setData, user }) => {
     }
   };
 
-  const onReplyId = (id: number) => {
-    console.log(id);
-    setReplyId(id);
+  const getReplyComment = (id: number) => {
+    let comments = [...data];
+    let index = comments.findIndex((item: DataType) => item.id === id);
+
+    if (index === -1) {
+      let res = comments.filter((item: DataType) => item.replies.length);
+      res.map((item, index) =>
+        item.replies.filter((post: PostType) => {
+          if (post.id === id) {
+            return setReplyCommentId(comments[index]);
+          }
+        }),
+      );
+    } else {
+      return setReplyCommentId(comments[index]);
+    }
   };
 
   useEffect(() => {
     setEditStatus(null);
     setEditMessage('');
+    setReplyCommentId(null);
   }, [data]);
 
   return (
@@ -89,16 +103,13 @@ export const List: React.FC<ListType> = ({ data, setData, user }) => {
             modalDelete={modalDelete}
             setModalDelete={setModalDelete}
             getModalDelete={getModalDelete}
-            onEdit={onEdit}
+            getEditComment={getEditComment}
             editStatus={editStatus}
             editMessage={editMessage}
-            onReplyId={onReplyId}
-            replyId={replyId}
+            getReplyComment={getReplyComment}
+            replyCommentId={replyCommentId}
           />
 
-          {!!replyId && item.id === replyId && (
-            <Form data={data} setData={setData} user={user} buttonName={'Reply'} />
-          )}
           {!!editStatus && item.id === editStatus && (
             <Form
               data={data}
@@ -109,11 +120,18 @@ export const List: React.FC<ListType> = ({ data, setData, user }) => {
               editMessage={editMessage}
             />
           )}
+          {!!replyCommentId && item.id === replyCommentId.id && (
+            <Form
+              data={data}
+              setData={setData}
+              user={user}
+              buttonName={'Reply'}
+              replyCommentId={replyCommentId}
+            />
+          )}
         </div>
       ))}
-      {modalDelete && (
-        <DeleteComment onButtonCancel={onButtonCancel} onButtonDelete={onButtonDelete} />
-      )}
+      {modalDelete && <DeleteModal onCancelModal={onCancelModal} onDeleteModal={onDeleteModal} />}
     </div>
   );
 };

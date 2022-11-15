@@ -9,9 +9,11 @@ import del from './images/icon-delete.svg';
 import edit from './images/icon-edit.svg';
 
 import maxblagun from './images/avatars/image-maxblagun.png';
-import { DataType } from '../../Types/DataType';
+import userLogo from './images/avatars/image-juliusomo.png';
+
 import { PostType } from '../../Types/PostType';
 import { Form } from '../Form/Form';
+import { DataType } from '../../Types/DataType';
 
 export const SingleComment: React.FC<CommentType> = ({
   item,
@@ -21,51 +23,73 @@ export const SingleComment: React.FC<CommentType> = ({
   modalDelete,
   setModalDelete,
   getModalDelete,
-  onEdit,
+  getEditComment,
   editStatus,
   editMessage,
-  onReplyId,
-  replyId,
+  getReplyComment,
+  replyCommentId,
 }) => {
-  // const [replyPost, setReplyPost] = useState('');
+  const [votePlus, setVotePlus] = useState<number[]>([]);
+  const [voteMinus, setVoteMinus] = useState<number[]>([]);
 
-  // const onReply = (id: number) => {
-  //   let comments = [...data];
-  //   let index = comments.findIndex((item: DataType) => item.id === id);
+  const onPlus = (data: DataType[], id: number) => {
+    setData(
+      data.map((item: any) => {
+        if (item.id === id && !votePlus.includes(id)) {
+          item.score = ++item.score;
+          if (!voteMinus.includes(id)) {
+            setVotePlus([...votePlus, id]);
+          }
+          setVoteMinus(voteMinus.filter((item) => item !== id));
+          return item;
+        } else {
+          item.replies && item.replies.length && onPlus(item.replies, id);
+          return item;
+        }
+      }),
+    );
+  };
 
-  //   if (index === -1) {
-  //     let res = comments.filter((item: DataType) => item.replies.length);
-  //     res.map((item, index) =>
-  //       item.replies.filter((post: PostType) => {
-  //         if (post.id === id) {
-  //           return setReplyPost(comments[index]);
-  //         }
-  //       }),
-  //     );
-  //   } else {
-  //     return setReplyPost(comments[index]);
-  //   }
-  // };
+  const onMinus = (data: DataType[], id: number) => {
+    setData(
+      data.map((item: any) => {
+        if (item.id === id && !voteMinus.includes(id)) {
+          item.score = --item.score;
 
-  // console.log(replyPost);
+          if (!votePlus.includes(id)) {
+            setVoteMinus([...voteMinus, id]);
+          }
+          setVotePlus(votePlus.filter((item) => item !== id));
+          return item;
+        } else {
+          item.replies && item.replies.length && onMinus(item.replies, id);
+          return item;
+        }
+      }),
+    );
+  };
 
   return (
     <>
       <div className={style.card}>
         <div className={style.likes}>
-          <img src={plus} alt="" className={style.plus} />
+          <img src={plus} alt="" className={style.plus} onClick={() => onPlus(data, item.id)} />
           <p className={style.score}>{item.score}</p>
-          <img src={minus} alt="" className={style.plus} />
+          <img src={minus} alt="" className={style.plus} onClick={() => onMinus(data, item.id)} />
         </div>
         <div className={style.content}>
           <div className={style.header}>
             <div className={style.info}>
-              <img src={maxblagun} alt="" className={style.avatar} />
+              <img
+                src={item.user.username === user.username ? userLogo : maxblagun}
+                alt=""
+                className={style.avatar}
+              />
               <div className={style.userName}>{item.user.username}</div>
               <div className={style.createdAt}>{item.createdAt}</div>
             </div>
             {item.user.username !== user.username ? (
-              <div className={style.reply} onClick={() => onReplyId(item.id)}>
+              <div className={style.reply} onClick={() => getReplyComment(item.id)}>
                 <img src={reply} alt="" className={style.img__reply} />
                 <p>Reply</p>
               </div>
@@ -75,7 +99,7 @@ export const SingleComment: React.FC<CommentType> = ({
                   <img src={del} alt="" className={style.img__reply} />
                   <p>Delete</p>
                 </div>
-                <div className={style.reply} onClick={() => onEdit(item.id)}>
+                <div className={style.reply} onClick={() => getEditComment(item.id)}>
                   <img src={edit} alt="" className={style.img__reply} />
                   <p>Edit</p>
                 </div>
@@ -98,11 +122,11 @@ export const SingleComment: React.FC<CommentType> = ({
                   modalDelete={modalDelete}
                   setModalDelete={setModalDelete}
                   getModalDelete={getModalDelete}
-                  onEdit={onEdit}
+                  getEditComment={getEditComment}
                   editStatus={editStatus}
                   editMessage={editMessage}
-                  onReplyId={onReplyId}
-                  replyId={replyId}
+                  getReplyComment={getReplyComment}
+                  replyCommentId={replyCommentId}
                 />
                 {!!editStatus && item.id === editStatus && (
                   <Form
@@ -114,8 +138,14 @@ export const SingleComment: React.FC<CommentType> = ({
                     editMessage={editMessage}
                   />
                 )}
-                {!!replyId && item.id === replyId && (
-                  <Form data={data} setData={setData} user={user} buttonName={'Reply'} />
+                {!!replyCommentId && item.id === replyCommentId.id && (
+                  <Form
+                    data={data}
+                    setData={setData}
+                    user={user}
+                    buttonName={'Reply'}
+                    replyCommentId={replyCommentId}
+                  />
                 )}
               </div>
             ))}

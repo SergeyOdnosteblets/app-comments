@@ -12,5 +12,5 @@ export interface DataType {
         };
         username: string;
     }
-    replies: PostType[]
+   replies: PostType[]
 }

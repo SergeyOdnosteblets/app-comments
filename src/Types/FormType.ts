@@ -8,4 +8,5 @@ export interface FormType {
     buttonName: string
     editStatus?: number | null
     editMessage?: string
+    replyCommentId?: DataType | undefined
 }

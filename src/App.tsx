@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { List } from './Components/List/List';
+import { useState } from 'react';
+import { ListComments } from './Components/ListComments/ListComments';
 
 import './App.scss';
 
@@ -14,8 +14,8 @@ export const App = () => {
 
   return (
     <div className="containter">
-      <List data={data} setData={setData} user={user} />
-      <Form data={data} setData={setData} user={user} buttonName={'send'} editStatus={null} editMessage={''}/>
+      <ListComments data={data} setData={setData} user={user} />
+      <Form data={data} setData={setData} user={user} buttonName={'Send'}/>
     </div>
   );
 };
