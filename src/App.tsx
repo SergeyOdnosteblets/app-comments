@@ -1,26 +1,21 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { List } from './Components/List/List';
 
-function App() {
+import './App.scss';
+
+import dataJson from './data.json';
+import { Form } from './Components/Form/Form';
+import { DataType } from './Types/DataType';
+import { CurrentUserType } from './Types/CurrentUserType';
+
+export const App = () => {
+  const [data, setData] = useState<DataType[]>(dataJson.comments);
+  const [user, setUser] = useState<CurrentUserType>(dataJson.currentUser);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="containter">
+      <List data={data} setData={setData} user={user} />
+      <Form data={data} setData={setData} user={user} buttonName={'send'} editStatus={null} editMessage={''}/>
     </div>
   );
-}
-
-export default App;
+};
