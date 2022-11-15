@@ -1,0 +1,38 @@
+.form {
+  padding: 20px;
+  width: 100%;
+  background: white;
+  border: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 18px;
+  color: grey;
+  line-height: 25px;
+  display: flex;
+  align-items: center;
+
+  .button {
+    background: #c2c7ed;
+    border: none;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+
+    &:hover {
+      background: #5358b6;
+      cursor: pointer;
+    }
+  }
+  .input {
+    width: 70%;
+    height: 70px;
+    text-align: start;
+    border-radius: 10px;
+    padding: 5px;
+    border: 1px solid grey;
+  }
+}
